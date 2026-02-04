@@ -15,25 +15,6 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Define dummy accounts
-  const dummyAccounts = [
-    { email: 'inventory@bb.com', password: 'bb1234', role: 'Admin' },
-    { email: 'inventory2@bb.com', password: 'bb1234', role: 'Manager' }
-  ];
-
-  // Check if credentials match dummy accounts
-  const isDummyAccount = (email, password) => {
-    return dummyAccounts.some(account => 
-      account.email === email && account.password === password
-    );
-  };
-
-  // Get dummy account role
-  const getDummyAccountRole = (email) => {
-    const account = dummyAccounts.find(acc => acc.email === email);
-    return account ? account.role : 'User';
-  };
-
   // Load saved credentials on component mount
   useEffect(() => {
     const savedCredentials = localStorage.getItem('savedCredentials');
@@ -119,49 +100,11 @@ const LoginPage = () => {
     }
   };
 
-  // Handle dummy login directly (no API call)
-  const handleDummyLoginDirect = (email, password, role) => {
-    setIsLoading(true);
-    
-    // Save credentials if remember me is checked
-    saveCredentials(email, password);
-    
-    // Store user info in localStorage
-    const userData = {
-      email,
-      role,
-      isDummy: true,
-      loginTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', `dummy-token-${Date.now()}`);
-    
-    toast.success(`Logged in as ${role}! Redirecting...`);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push('/inventory-home');
-    }, 800);
-  };
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Check if it's a dummy account FIRST
-    if (isDummyAccount(formData.email, formData.password)) {
-      const role = getDummyAccountRole(formData.email);
-      
-      // Save credentials if remember me is checked
-      saveCredentials(formData.email, formData.password);
-      
-      handleDummyLoginDirect(formData.email, formData.password, role);
-      return;
-    }
-
-    // If not dummy account, proceed with API call
     try {
       const response = await axiosInstance.post("/login", formData);
       
@@ -188,12 +131,6 @@ const LoginPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Handle dummy login button click (for auto-fill)
-  const handleDummyLogin = (email, password, role) => {
-    setFormData({ email, password });
-    toast.success(`${role} credentials filled! Click Login to proceed.`);
   };
 
   return (
@@ -307,63 +244,17 @@ const LoginPage = () => {
               </button>
             </form>
 
-            {/* Divider */}
-            <div className="my-8 flex items-center">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-gray-500 text-sm">OR</span>
-              <div className="flex-1 border-t border-gray-300"></div>
-            </div>
-
-            {/* Dummy Login Buttons */}
-            <div className="space-y-4">
-              <p className="text-center text-gray-600 text-sm">
-                Use dummy accounts for testing (direct login):
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => handleDummyLoginDirect('inventory@bb.com', 'bb1234', 'Admin')}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium py-3 px-4 rounded-lg transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                Direct Login as Admin
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleDummyLoginDirect('inventory2@bb.com', 'bb1234', 'Manager')}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-all transform hover:-translate-y-0.5 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                </svg>
-                Direct Login as Admin 2 
-              </button>
-
-              <p className="text-center text-xs text-gray-500 mt-2">
-                Or fill credentials only:
-              </p>
-
-              <div className="flex gap-2">
+            {/* Register Link */}
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 text-sm">
+                Don&apos;t have an account?{' '}
                 <button
-                  type="button"
-                  onClick={() => handleDummyLogin('inventory@bb.com', 'bb1234', 'Admin')}
-                  className="flex-1 text-sm bg-green-50 hover:bg-green-100 text-green-700 font-medium py-2 px-3 rounded-lg border border-green-200 transition-colors"
+                  onClick={() => router.push('/register')}
+                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
-                  Fill Admin
+                  Register here
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleDummyLogin('inventory2@bb.com', 'bb1234', 'Manager')}
-                  className="flex-1 text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 font-medium py-2 px-3 rounded-lg border border-purple-200 transition-colors"
-                >
-                  Fill Admin 2 
-                </button>
-              </div>
+              </p>
             </div>
           </div>
         </div>
