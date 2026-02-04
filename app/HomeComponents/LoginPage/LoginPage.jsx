@@ -106,7 +106,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axiosInstance.post("/login", formData);
+      const response = await axiosInstance.post("/users/login", formData);
       
       if (response.data.success) {
         // Save credentials if remember me is checked
