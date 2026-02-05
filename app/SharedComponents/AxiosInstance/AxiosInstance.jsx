@@ -6,6 +6,8 @@ const axiosInstance = axios.create({
   withCredentials: true, 
 });
 
+export const baseImageURL = "http://localhost:5000";
+
 
 
 export default axiosInstance;

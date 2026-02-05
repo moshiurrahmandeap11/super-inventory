@@ -15,22 +15,17 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load saved credentials on component mount
+  // Load saved email only (not password) on component mount
   useEffect(() => {
-    const savedCredentials = localStorage.getItem('savedCredentials');
+    const savedEmail = localStorage.getItem('savedEmail');
     const savedRememberMe = localStorage.getItem('rememberMe') === 'true';
     
-    if (savedRememberMe && savedCredentials) {
-      try {
-        const credentials = JSON.parse(savedCredentials);
-        setFormData({
-          email: credentials.email || '',
-          password: credentials.password || ''
-        });
-        setRememberMe(true);
-      } catch (error) {
-        console.error('Error loading saved credentials:', error);
-      }
+    if (savedEmail) {
+      setFormData(prev => ({
+        ...prev,
+        email: savedEmail
+      }));
+      setRememberMe(savedRememberMe);
     }
   }, []);
 
@@ -48,9 +43,12 @@ const LoginPage = () => {
     const isChecked = e.target.checked;
     setRememberMe(isChecked);
     
-    // If unchecking, remove saved credentials
-    if (!isChecked) {
-      localStorage.removeItem('savedCredentials');
+    // Save email only if checked
+    if (isChecked && formData.email) {
+      localStorage.setItem('savedEmail', formData.email);
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('savedEmail');
       localStorage.setItem('rememberMe', 'false');
     }
   };
@@ -89,17 +87,6 @@ const LoginPage = () => {
     ));
   };
 
-  // Save credentials to localStorage if remember me is checked
-  const saveCredentials = (email, password) => {
-    if (rememberMe) {
-      localStorage.setItem('savedCredentials', JSON.stringify({ email, password }));
-      localStorage.setItem('rememberMe', 'true');
-    } else {
-      localStorage.removeItem('savedCredentials');
-      localStorage.setItem('rememberMe', 'false');
-    }
-  };
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,18 +96,27 @@ const LoginPage = () => {
       const response = await axiosInstance.post("/users/login", formData);
       
       if (response.data.success) {
-        // Save credentials if remember me is checked
-        saveCredentials(formData.email, formData.password);
-        
-        toast.success('Login successful!');
-        // Store token if available
+        // Save token in localStorage
         if (response.data.token) {
           localStorage.setItem('token', response.data.token);
+          
+          // If remember me is checked, save email only (not password)
+          if (rememberMe && formData.email) {
+            localStorage.setItem('savedEmail', formData.email);
+            localStorage.setItem('rememberMe', 'true');
+          } else {
+            localStorage.removeItem('savedEmail');
+            localStorage.setItem('rememberMe', 'false');
+          }
         }
+        
         // Store user data
         if (response.data.user) {
-          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem('userId', response.data.user._id);
         }
+        
+        toast.success('Login successful!');
+        
         // Redirect after delay
         setTimeout(() => {
           router.push('/inventory-home');
@@ -245,7 +241,7 @@ const LoginPage = () => {
             </form>
 
             {/* Register Link */}
-            <div className="mt-8 text-center">
+            <div className="mt-6 text-center">
               <p className="text-gray-600 text-sm">
                 Don&apos;t have an account?{' '}
                 <button
