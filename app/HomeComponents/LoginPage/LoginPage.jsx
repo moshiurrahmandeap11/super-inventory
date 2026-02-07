@@ -14,11 +14,17 @@ const LoginPage = () => {
   });
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userID, setUserID] = useState(null)
+  
+  if(userID) {
+    router.push("/inventory-home")
+  }
 
   // Load saved email only (not password) on component mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('savedEmail');
     const savedRememberMe = localStorage.getItem('rememberMe') === 'true';
+    setUserID(localStorage.getItem("userId"));
     
     if (savedEmail) {
       setFormData(prev => ({

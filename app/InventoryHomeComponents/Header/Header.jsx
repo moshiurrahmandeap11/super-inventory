@@ -1,5 +1,5 @@
 "use client";
-import axiosInstance from "@/app/SharedComponents/AxiosInstance/AxiosInstance";
+import axiosInstance, { baseImageURL } from "@/app/SharedComponents/AxiosInstance/AxiosInstance";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,6 +10,28 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [user, setUser] = useState(null);
+const [basic, setBasic] = useState(null);
+const [loading, setLoading] = useState(true);
+console.log(basic);
+
+useEffect(() => {
+  const tryFetchBasic = async () => {
+    try {
+      const res = await axiosInstance.get("/basic-settings");
+
+      if (res.data.success) {
+        setBasic(res.data.data);
+      }
+    } catch (error) {
+      console.error("Basic settings fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  tryFetchBasic();
+}, []);
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -122,21 +144,37 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </svg>
             </button>
 
-            {/* Logo/Brand */}
-            <div className="ml-2 lg:ml-0">
-              <h1 className="text-xl font-bold text-gray-800">
-                Super <span className="text-blue-600">Inventory</span>
-              </h1>
-              <p className="text-xs text-gray-500 hidden sm:block">
-                {getGreeting()} •{" "}
-                {new Date().toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-            </div>
+{/* Logo / Brand */}
+<div className="flex items-center gap-3 ml-2 lg:ml-0">
+
+  {/* Logo */}
+  {basic?.logo && (
+    <img
+      src={`${baseImageURL}${basic.logo}`}
+      alt="Website Logo"
+      className="h-10 w-10 object-contain rounded-lg border bg-white p-1"
+    />
+  )}
+
+  {/* Text Section */}
+  <div className="flex flex-col leading-tight">
+    <h1 className="text-lg sm:text-xl font-bold text-gray-800 truncate">
+      {basic?.websiteName || "Super Inventory"}
+    </h1>
+
+    <p className="text-xs text-gray-500 hidden sm:block">
+      {getGreeting()} •{" "}
+      {new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}
+    </p>
+  </div>
+
+</div>
+
           </div>
 
           {/* Right Section */}
@@ -156,7 +194,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
               >
                 <div className="w-8 h-8 bg-linear-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">
-                    {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                    <img src={`${baseImageURL}${user?.avatar}`} alt={user?.fullName} className="w-8 h-8 rounded-full" />
                   </span>
                 </div>
                 <div className="hidden md:block text-left">
