@@ -2,11 +2,11 @@ import axios from "axios";
 
 // Axios base instance
 const axiosInstance = axios.create({
-  baseURL: "https://server-inventory-hrle.onrender.com/api", // backend URL
+  baseURL: "https://server-inventory.vercel.app/api", // backend URL
   withCredentials: true, 
 });
 
-export const baseImageURL = "https://server-inventory-hrle.onrender.com";
+export const baseImageURL = "https://server-inventory.vercel.app";
 
 
 
