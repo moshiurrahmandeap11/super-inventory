@@ -2,7 +2,6 @@
 import axiosInstance, {
   baseImageURL,
 } from "@/app/SharedComponents/AxiosInstance/AxiosInstance";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -15,7 +14,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
   useEffect(() => {
     const tryFetchingVersion = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/version");
+        const res = await axiosInstance.get("/version");
 
         if (res.data.success) {
           setVersion(res.data.version);
@@ -77,7 +76,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
           />
         </svg>
       ),
-      path: "/inventory/products",
+      path: "/inventory-home/products",
     },
     {
       id: "orders",
@@ -117,7 +116,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
           />
         </svg>
       ),
-      path: "/inventory/customers",
+      path: "/inventory-home/customers",
     },
     {
       id: "categories",
@@ -137,7 +136,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
           />
         </svg>
       ),
-      path: "/inventory/categories",
+      path: "/inventory-home/categories",
     },
     {
       id: "reports",
@@ -226,7 +225,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 bg-opacity-50 z-30 lg:hidden"
           onClick={() => onItemSelect(selectedItem)}
         ></div>
       )}
