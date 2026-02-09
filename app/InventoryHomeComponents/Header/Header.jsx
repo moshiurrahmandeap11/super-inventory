@@ -32,6 +32,9 @@ useEffect(() => {
   tryFetchBasic();
 }, []);
 
+        const tokenFromLogin = localStorage.getItem("token")
+        console.log(tokenFromLogin);
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -43,11 +46,15 @@ useEffect(() => {
           return; // cached data found, API call skip
         }
 
+
+
         // if not cached, fetch from API
         const userId = localStorage.getItem("userId");
         if (userId) {
           try {
-            const res = await axiosInstance.get(`/users/${userId}`);
+            const res = await axiosInstance.get(`/users/${userId}`, {
+              headers: { Authorization: `Bearer ${tokenFromLogin}`}
+            });
             setUser(res.data.data);
 
             // save to localStorage for future renders
