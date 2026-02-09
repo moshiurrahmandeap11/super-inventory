@@ -5,57 +5,53 @@ import Sidebar from "../InventoryHomeComponents/Sidebar/Sidebar";
 import ProtectedRoute from "../SharedComponents/ProtectedRoute/ProtectedRoute";
 
 export default function InventoryLayout({ children }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("sidebarOpen");
-      return saved !== null ? JSON.parse(saved) : true;
-    }
-    return true;
-  });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const [selectedItem, setSelectedItem] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("selectedItem") || "dashboard";
-    }
-    return "dashboard";
-  });
-
-  // Save sidebar state
+  // Detect screen size
   useEffect(() => {
-    localStorage.setItem("sidebarOpen", JSON.stringify(isSidebarOpen));
-  }, [isSidebarOpen]);
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      setIsSidebarOpen(!mobile); // Auto close on mobile
+    };
 
-  // Save selected item
-  const handleItemSelect = (item) => {
-    setSelectedItem(item);
-    localStorage.setItem("selectedItem", item);
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
-    // Close sidebar on mobile after selection
-    if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
-    }
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen text-black bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
+        {/* Header Component with sidebar toggle */}
         <Header
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          isMobile={isMobile}
         />
-
-        <div className="flex pt-16">
-          <Sidebar
+        
+        <div className="flex pt-16"> {/* Add padding-top for fixed header */}
+          {/* Sidebar Component */}
+          <Sidebar 
             isOpen={isSidebarOpen}
-            selectedItem={selectedItem}
-            onItemSelect={handleItemSelect}
+            onToggle={toggleSidebar}
           />
-
-          {/* Main Content */}
+          
+          {/* Main Content Area */}
           <main
-            className={`flex-1 transition-all duration-300 ${isSidebarOpen ? "lg:ml-64" : ""}`}
+            className={`flex-1 transition-all duration-300 ${
+              isSidebarOpen && !isMobile ? "lg:ml-0" : ""
+            }`}
           >
-            <div className="p-4 md:p-6">{children}</div>
+            <div className="p-4 md:p-2 lg:p-2">
+              {children}
+            </div>
           </main>
         </div>
       </div>
