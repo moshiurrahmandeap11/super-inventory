@@ -140,7 +140,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
     },
     {
       id: "reports",
-      label: "Reports",
+      label: "Suppliers",
       icon: (
         <svg
           className="w-5 h-5"
