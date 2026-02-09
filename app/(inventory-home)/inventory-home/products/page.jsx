@@ -126,22 +126,40 @@ const Products = () => {
   const calculateTotalCost = (costPrice, quantity) => {
     const cost = parseFloat(costPrice) || 0;
     const qty = parseFloat(quantity) || 0;
-    return (cost * qty).toFixed(2);
+    return (cost * qty).toFixed(3); // 3 decimal places
   };
 
-  // Format number with commas
+  // Format number with commas and up to 3 decimal places
   const formatNumber = (num) => {
     if (!num && num !== 0) return "0";
-    return parseFloat(num).toLocaleString('en-US', {
+    const number = parseFloat(num);
+    return number.toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 3,
     });
   };
 
-  // Format currency
+  const totalStockValue =
+    products?.reduce(
+      (sum, product) => sum + product.costPrice * product.quantity,
+      0,
+    ) || 0;
+
+  // Format currency with up to 3 decimal places
   const formatCurrency = (num) => {
-    if (!num && num !== 0) return "$0.00";
-    return `$${parseFloat(num).toFixed(2)}`;
+    if (!num && num !== 0) return "$0.000";
+    return `$${parseFloat(num).toFixed(3)}`;
+  };
+
+  // Handle decimal input with up to 3 digits
+  const handleDecimalInput = (input, maxDecimals = 3) => {
+    let value = input.value;
+    if (value && !value.endsWith('.') && value.includes('.')) {
+      const decimalParts = value.split('.');
+      if (decimalParts[1].length > maxDecimals) {
+        input.value = decimalParts[0] + '.' + decimalParts[1].substring(0, maxDecimals);
+      }
+    }
   };
 
   // Handle Add Product
@@ -179,23 +197,23 @@ const Products = () => {
                             <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)*</label>
                             <input type="number" id="swal-price" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   placeholder="0.00" 
+                                   placeholder="0.000" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimal(this)"
+                                   step="0.001"
+                                   oninput="formatDecimal(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 2 decimal places</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 3 decimal places (e.g., 19.999, 45.555)</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price ($)*</label>
                             <input type="number" id="swal-costPrice" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   placeholder="0.00" 
+                                   placeholder="0.000" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimal(this)"
+                                   step="0.001"
+                                   oninput="formatDecimal(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 2 decimal places</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 3 decimal places (e.g., 15.755, 30.255)</p>
                         </div>
                     </div>
                     
@@ -206,10 +224,10 @@ const Products = () => {
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
                                    placeholder="0" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimal(this)"
+                                   step="0.001"
+                                   oninput="formatDecimal(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.5)</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.543, 0.789)</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
@@ -225,7 +243,7 @@ const Products = () => {
                                 <p class="text-xs text-blue-600">Cost Price × Quantity</p>
                             </div>
                             <div>
-                                <p id="total-cost-display" class="text-xl font-bold text-blue-900">$0.00</p>
+                                <p id="total-cost-display" class="text-xl font-bold text-blue-900">$0.000</p>
                             </div>
                         </div>
                     </div>
@@ -249,14 +267,15 @@ const Products = () => {
       cancelButtonColor: "#6B7280",
       showLoaderOnConfirm: true,
       didOpen: () => {
-        // Format decimal helper function
-        window.formatDecimal = function(input) {
-          // Allow decimal input with up to 2 decimal places
+        // Format decimal helper function with customizable decimal places
+        window.formatDecimal = function (input, maxDecimals = 3) {
+          // Allow decimal input with up to maxDecimals decimal places
           let value = input.value;
-          if (value && !value.endsWith('.') && value.includes('.')) {
-            const decimalParts = value.split('.');
-            if (decimalParts[1].length > 2) {
-              input.value = decimalParts[0] + '.' + decimalParts[1].substring(0, 2);
+          if (value && !value.endsWith(".") && value.includes(".")) {
+            const decimalParts = value.split(".");
+            if (decimalParts[1].length > maxDecimals) {
+              input.value =
+                decimalParts[0] + "." + decimalParts[1].substring(0, maxDecimals);
             }
           }
         };
@@ -268,24 +287,27 @@ const Products = () => {
         if (editorContainer) {
           // Create a container for React component
           editorContainer.innerHTML = '<div id="richtext-editor"></div>';
-          
+
           setTimeout(() => {
-            const textarea = document.createElement('textarea');
-            textarea.id = 'description-textarea';
-            textarea.className = 'w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none';
-            textarea.placeholder = 'Enter product description...';
-            editorContainer.querySelector('#richtext-editor').appendChild(textarea);
-            
-            textarea.addEventListener('input', (e) => {
+            const textarea = document.createElement("textarea");
+            textarea.id = "description-textarea";
+            textarea.className =
+              "w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
+            textarea.placeholder = "Enter product description...";
+            editorContainer
+              .querySelector("#richtext-editor")
+              .appendChild(textarea);
+
+            textarea.addEventListener("input", (e) => {
               window.currentDescription = e.target.value;
             });
           }, 100);
         }
 
         // Add event listeners for total cost calculation
-        const costPriceInput = document.getElementById('swal-costPrice');
-        const quantityInput = document.getElementById('swal-quantity');
-        const totalCostDisplay = document.getElementById('total-cost-display');
+        const costPriceInput = document.getElementById("swal-costPrice");
+        const quantityInput = document.getElementById("swal-quantity");
+        const totalCostDisplay = document.getElementById("total-cost-display");
 
         const updateTotalCost = () => {
           const cost = costPriceInput.value || 0;
@@ -294,8 +316,8 @@ const Products = () => {
           totalCostDisplay.textContent = `$${total}`;
         };
 
-        costPriceInput.addEventListener('input', updateTotalCost);
-        quantityInput.addEventListener('input', updateTotalCost);
+        costPriceInput.addEventListener("input", updateTotalCost);
+        quantityInput.addEventListener("input", updateTotalCost);
       },
       preConfirm: async () => {
         const name = document.getElementById("swal-name").value;
@@ -322,7 +344,9 @@ const Products = () => {
 
         // Check if cost price is less than price
         if (parseFloat(costPrice) > parseFloat(price)) {
-          Swal.showValidationMessage("Cost price cannot be higher than selling price");
+          Swal.showValidationMessage(
+            "Cost price cannot be higher than selling price",
+          );
           return false;
         }
 
@@ -346,8 +370,8 @@ const Products = () => {
           const formData = new FormData();
           formData.append("name", name);
           formData.append("category", category);
-          formData.append("price", parseFloat(price).toFixed(2));
-          formData.append("costPrice", parseFloat(costPrice).toFixed(2));
+          formData.append("price", parseFloat(price).toFixed(3)); // 3 decimal places
+          formData.append("costPrice", parseFloat(costPrice).toFixed(3)); // 3 decimal places
           formData.append("quantity", parseFloat(quantity));
           formData.append("supplier", supplier);
           formData.append("description", description);
@@ -420,7 +444,7 @@ const Products = () => {
                                 ${categories
                                   .map(
                                     (cat) => `
-                                    <option value="${cat.name}" ${product.category === cat.name ? 'selected' : ''}>
+                                    <option value="${cat.name}" ${product.category === cat.name ? "selected" : ""}>
                                         ${cat.name}
                                     </option>
                                 `,
@@ -437,10 +461,10 @@ const Products = () => {
                                    value="${product.price || 0}" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimalEdit(this)"
+                                   step="0.001"
+                                   oninput="formatDecimalEdit(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 2 decimal places</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 3 decimal places</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price ($)*</label>
@@ -448,10 +472,10 @@ const Products = () => {
                                    value="${product.costPrice || 0}" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimalEdit(this)"
+                                   step="0.001"
+                                   oninput="formatDecimalEdit(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 2 decimal places</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 3 decimal places</p>
                         </div>
                     </div>
                     
@@ -462,10 +486,10 @@ const Products = () => {
                                    value="${product.quantity || 0}" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
                                    min="0" 
-                                   step="0.01"
-                                   oninput="formatDecimalEdit(this)"
+                                   step="0.001"
+                                   oninput="formatDecimalEdit(this, 3)"
                                    required>
-                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.5)</p>
+                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports 3 decimal places)</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
@@ -521,13 +545,14 @@ const Products = () => {
       showLoaderOnConfirm: true,
       didOpen: () => {
         // Format decimal helper function for edit
-        window.formatDecimalEdit = function(input) {
-          // Allow decimal input with up to 2 decimal places
+        window.formatDecimalEdit = function (input, maxDecimals = 3) {
+          // Allow decimal input with up to maxDecimals decimal places
           let value = input.value;
-          if (value && !value.endsWith('.') && value.includes('.')) {
-            const decimalParts = value.split('.');
-            if (decimalParts[1].length > 2) {
-              input.value = decimalParts[0] + '.' + decimalParts[1].substring(0, 2);
+          if (value && !value.endsWith(".") && value.includes(".")) {
+            const decimalParts = value.split(".");
+            if (decimalParts[1].length > maxDecimals) {
+              input.value =
+                decimalParts[0] + "." + decimalParts[1].substring(0, maxDecimals);
             }
           }
         };
@@ -538,25 +563,30 @@ const Products = () => {
         );
         if (editorContainer) {
           editorContainer.innerHTML = '<div id="edit-richtext-editor"></div>';
-          
+
           setTimeout(() => {
-            const textarea = document.createElement('textarea');
-            textarea.id = 'edit-description-textarea';
-            textarea.className = 'w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none';
-            textarea.placeholder = 'Enter product description...';
-            textarea.value = product.description || '';
-            editorContainer.querySelector('#edit-richtext-editor').appendChild(textarea);
-            
-            textarea.addEventListener('input', (e) => {
+            const textarea = document.createElement("textarea");
+            textarea.id = "edit-description-textarea";
+            textarea.className =
+              "w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
+            textarea.placeholder = "Enter product description...";
+            textarea.value = product.description || "";
+            editorContainer
+              .querySelector("#edit-richtext-editor")
+              .appendChild(textarea);
+
+            textarea.addEventListener("input", (e) => {
               window.currentEditDescription = e.target.value;
             });
           }, 100);
         }
 
         // Add event listeners for total cost calculation
-        const costPriceInput = document.getElementById('swal-edit-costPrice');
-        const quantityInput = document.getElementById('swal-edit-quantity');
-        const totalCostDisplay = document.getElementById('edit-total-cost-display');
+        const costPriceInput = document.getElementById("swal-edit-costPrice");
+        const quantityInput = document.getElementById("swal-edit-quantity");
+        const totalCostDisplay = document.getElementById(
+          "edit-total-cost-display",
+        );
 
         const updateTotalCost = () => {
           const cost = costPriceInput.value || 0;
@@ -565,8 +595,8 @@ const Products = () => {
           totalCostDisplay.textContent = `$${total}`;
         };
 
-        costPriceInput.addEventListener('input', updateTotalCost);
-        quantityInput.addEventListener('input', updateTotalCost);
+        costPriceInput.addEventListener("input", updateTotalCost);
+        quantityInput.addEventListener("input", updateTotalCost);
       },
       preConfirm: async () => {
         const name = document.getElementById("swal-edit-name").value;
@@ -594,7 +624,9 @@ const Products = () => {
 
         // Check if cost price is less than price
         if (parseFloat(costPrice) > parseFloat(price)) {
-          Swal.showValidationMessage("Cost price cannot be higher than selling price");
+          Swal.showValidationMessage(
+            "Cost price cannot be higher than selling price",
+          );
           return false;
         }
 
@@ -618,8 +650,8 @@ const Products = () => {
           const formData = new FormData();
           formData.append("name", name);
           formData.append("category", category);
-          formData.append("price", parseFloat(price).toFixed(2));
-          formData.append("costPrice", parseFloat(costPrice).toFixed(2));
+          formData.append("price", parseFloat(price).toFixed(3)); // 3 decimal places
+          formData.append("costPrice", parseFloat(costPrice).toFixed(3)); // 3 decimal places
           formData.append("quantity", parseFloat(quantity));
           formData.append("supplier", supplier);
           formData.append("description", description);
@@ -727,8 +759,10 @@ const Products = () => {
   // Handle View Product Details
   const handleViewProduct = (product) => {
     const totalCost = calculateTotalCost(product.costPrice, product.quantity);
-    const totalValue = (Number(product.price) * Number(product.quantity)).toFixed(2);
-    
+    const totalValue = (
+      Number(product.price) * Number(product.quantity)
+    ).toFixed(3);
+
     Swal.fire({
       title: product.name,
       html: `
@@ -792,8 +826,8 @@ const Products = () => {
                                   product.quantity === 0
                                     ? '<span class="ml-2 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Out of Stock</span>'
                                     : product.quantity <= 10
-                                    ? '<span class="ml-2 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Low Stock</span>'
-                                    : '<span class="ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">In Stock</span>'
+                                      ? '<span class="ml-2 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Low Stock</span>'
+                                      : '<span class="ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">In Stock</span>'
                                 }
                             </div>
                             <div class="mt-2">
@@ -803,9 +837,11 @@ const Products = () => {
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                     <div class="h-2 rounded-full ${
-                                      product.quantity === 0 ? 'bg-red-500' :
-                                      product.quantity <= 10 ? 'bg-yellow-500' :
-                                      'bg-green-500'
+                                      product.quantity === 0
+                                        ? "bg-red-500"
+                                        : product.quantity <= 10
+                                          ? "bg-yellow-500"
+                                          : "bg-green-500"
                                     }" style="width: ${Math.min(100, product.quantity)}%"></div>
                                 </div>
                             </div>
@@ -914,10 +950,10 @@ const Products = () => {
               {products.filter((p) => p.quantity === 0).length}
             </p>
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-            <p className="text-xs text-gray-500">Total Value</p>
-            <p className="text-lg font-bold text-green-600">
-              ${formatNumber(products.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 0), 0))}
+          <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+            <p className="text-xs text-gray-500">Total Stock Value</p>
+            <p className="text-lg font-semibold text-green-600">
+              ৳ {formatNumber(totalStockValue)}
             </p>
           </div>
         </div>
@@ -967,9 +1003,9 @@ const Products = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Value</p>
+              <p className="text-sm text-gray-500">Total Stock Value</p>
               <p className="text-2xl font-bold text-green-600">
-                ${formatNumber(products.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 0), 0))}
+                ৳ {formatNumber(totalStockValue)}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -1063,8 +1099,12 @@ const Products = () => {
           {filteredProducts.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
               <FiPackage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-              <p className="text-gray-500 mb-4">Try adjusting your filters or add a new product</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No products found
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Try adjusting your filters or add a new product
+              </p>
               <button
                 onClick={handleAddProduct}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium inline-flex items-center"
@@ -1075,9 +1115,14 @@ const Products = () => {
             </div>
           ) : (
             filteredProducts.map((product) => {
-              const totalValue = (Number(product.price) * Number(product.quantity)).toFixed(2);
+              const totalValue = (
+                Number(product.price) * Number(product.quantity)
+              ).toFixed(3);
               return (
-                <div key={product._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div
+                  key={product._id}
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start">
                       {product.image ? (
@@ -1092,27 +1137,35 @@ const Products = () => {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                        <p className="text-sm text-gray-500">${formatNumber(product.price)}</p>
+                        <h3 className="font-semibold text-gray-900">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          ${formatNumber(product.price)}
+                        </p>
                         <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mt-1 inline-block">
                           {product.category}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-medium ${
-                        product.quantity === 0
-                          ? "text-red-600"
-                          : product.quantity <= 10
-                            ? "text-yellow-600"
-                            : "text-green-600"
-                      }`}>
+                      <p
+                        className={`text-sm font-medium ${
+                          product.quantity === 0
+                            ? "text-red-600"
+                            : product.quantity <= 10
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                        }`}
+                      >
                         {formatNumber(product.quantity)} in stock
                       </p>
-                      <p className="text-xs text-gray-500">${formatNumber(totalValue)} value</p>
+                      <p className="text-xs text-gray-500">
+                        ${formatNumber(totalValue)} value
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div className="text-sm text-gray-500">
                       <p>{product.supplier}</p>
@@ -1201,8 +1254,13 @@ const Products = () => {
                 </tr>
               ) : (
                 filteredProducts.map((product) => {
-                  const totalValue = (Number(product.price) * Number(product.quantity)).toFixed(2);
-                  const totalCost = calculateTotalCost(product.costPrice, product.quantity);
+                  const totalValue = (
+                    Number(product.price) * Number(product.quantity)
+                  ).toFixed(3);
+                  const totalCost = calculateTotalCost(
+                    product.costPrice,
+                    product.quantity,
+                  );
                   return (
                     <tr key={product._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -1327,7 +1385,12 @@ const Products = () => {
         </div>
         <div className="text-xs text-gray-400">
           Total Inventory Value: $
-          {formatNumber(filteredProducts.reduce((sum, p) => sum + (p.price || 0) * (p.quantity || 0), 0))}
+          {formatNumber(
+            filteredProducts.reduce(
+              (sum, p) => sum + (p.price || 0) * (p.quantity || 0),
+              0,
+            ),
+          )}
         </div>
       </div>
     </div>

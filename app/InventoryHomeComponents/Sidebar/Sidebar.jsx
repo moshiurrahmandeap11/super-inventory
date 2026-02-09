@@ -156,23 +156,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
           />
         </svg>
       ),
-      submenu: [
-        {
-          id: "sales-report",
-          label: "Sales Report",
-          path: "/inventory/reports/sales",
-        },
-        {
-          id: "stock-report",
-          label: "Stock Report",
-          path: "/inventory/reports/stock",
-        },
-        {
-          id: "profit-loss",
-          label: "Profit & Loss",
-          path: "/inventory/reports/profit-loss",
-        },
-      ],
+      path: "/inventory-home/supplier",
     },
     {
       id: "settings",
