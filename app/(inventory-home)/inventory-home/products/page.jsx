@@ -33,6 +33,10 @@ const Products = () => {
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStock, setFilterStock] = useState("all");
   const [categories, setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  console.log("suppliers", suppliers);
+
+  
 
   // Lottie options
   const successOptions = {
@@ -57,7 +61,20 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+    fetchSuppliers();
   }, []);
+
+  const fetchSuppliers = async () => {
+  try {
+    const res = await axiosInstance.get("/suppliers");
+    if (res.data.success) {
+      setSuppliers(res.data.data || []);
+    }
+  } catch (error) {
+    console.error("Error fetching suppliers:", error);
+    toast.error("Failed to load suppliers");
+  }
+};
 
   const fetchProducts = async () => {
     try {
@@ -218,22 +235,35 @@ const Products = () => {
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity*</label>
-                            <input type="number" id="swal-quantity" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   placeholder="0" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimal(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.543, 0.789)</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
-                            <input type="text" id="swal-supplier" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Supplier name" required>
-                        </div>
-                    </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Quantity*</label>
+    <input type="number" id="swal-quantity" 
+           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
+           placeholder="0" 
+           min="0" 
+           step="0.001"
+           oninput="formatDecimal(this, 3)"
+           required>
+    <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.543, 0.789)</p>
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
+    <select id="swal-supplier" 
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            required>
+      <option value="">Select Supplier</option>
+      ${suppliers
+        .map(
+          (supplier) => `
+          <option value="${supplier.name}">
+            ${supplier.name} - ${supplier.phone}
+          </option>
+        `
+        )
+        .join("")}
+    </select>
+  </div>
+</div>
 
                     <!-- Total Cost Calculation -->
                     <div id="total-cost-section" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -491,10 +521,23 @@ const Products = () => {
                                    required>
                             <p class="text-xs text-gray-500 mt-1">Enter quantity (supports 3 decimal places)</p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
-                            <input type="text" id="swal-edit-supplier" value="${product.supplier || ""}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-                        </div>
+<div>
+  <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
+  <select id="swal-edit-supplier" 
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          required>
+    <option value="">Select Supplier</option>
+    ${suppliers
+      .map(
+        (supplier) => `
+        <option value="${supplier.name}" ${product.supplier === supplier.name ? "selected" : ""}>
+          ${supplier.name} - ${supplier.phone}
+        </option>
+      `
+      )
+      .join("")}
+  </select>
+</div>
                     </div>
 
                     <!-- Total Cost Calculation -->
