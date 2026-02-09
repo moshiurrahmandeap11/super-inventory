@@ -32,9 +32,6 @@ useEffect(() => {
   tryFetchBasic();
 }, []);
 
-        const tokenFromLogin = localStorage.getItem("token")
-        console.log(tokenFromLogin);
-
 
   useEffect(() => {
     const loadUser = async () => {
@@ -52,9 +49,7 @@ useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (userId) {
           try {
-            const res = await axiosInstance.get(`/users/${userId}`, {
-              headers: { Authorization: `Bearer ${tokenFromLogin}`}
-            });
+            const res = await axiosInstance.get(`/users/${userId}`);
             setUser(res.data.data);
 
             // save to localStorage for future renders
@@ -159,7 +154,7 @@ useEffect(() => {
     <img
       src={`${baseImageURL}${basic.logo}`}
       alt="Website Logo"
-      className="h-10 w-10 object-contain rounded-lg border bg-white p-1"
+      className="h-10 w-10 object-contain rounded-lg "
     />
   )}
 

@@ -1,28 +1,28 @@
 "use client";
 import axiosInstance, {
-    baseImageURL,
+  baseImageURL,
 } from "@/app/SharedComponents/AxiosInstance/AxiosInstance";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 import {
-    FiAlertTriangle,
-    FiDollarSign,
-    FiEdit2,
-    FiEye,
-    FiPackage,
-    FiPlus,
-    FiRefreshCw,
-    FiSearch,
-    FiTrash2,
-    FiXCircle,
+  FiAlertTriangle,
+  FiDollarSign,
+  FiEdit2,
+  FiEye,
+  FiPackage,
+  FiPlus,
+  FiRefreshCw,
+  FiSearch,
+  FiTrash2,
+  FiXCircle,
 } from "react-icons/fi";
 import Lottie from "react-lottie";
 import Swal from "sweetalert2";
 
 import {
-    default as loadingAnimation,
-    default as successAnimation,
+  default as loadingAnimation,
+  default as successAnimation,
 } from "@/public/success-animation.json";
 
 const Products = () => {

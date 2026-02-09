@@ -1,6 +1,6 @@
 "use client";
 import axiosInstance, {
-    baseImageURL,
+  baseImageURL,
 } from "@/app/SharedComponents/AxiosInstance/AxiosInstance";
 import successAnimation from "@/public/success-animation.json"; // লটিফাইলের জন্য
 import Lottie from "lottie-react";
