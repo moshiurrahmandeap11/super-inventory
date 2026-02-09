@@ -138,7 +138,7 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
       ),
       path: "/inventory-home/supplier",
     },
-        {
+    {
       id: "reports",
       label: "Reports",
       icon: (
@@ -247,60 +247,9 @@ const Sidebar = ({ isOpen, selectedItem, onItemSelect }) => {
                       >
                         {item.icon}
                       </span>
-                      <span className={`font-medium ${!isOpen && "lg:hidden"}`}>
-                        {item.label}
-                      </span>
+                      <span className="font-medium">{item.label}</span>
                     </div>
-
-                    {/* Submenu Indicator */}
-                    {item.submenu && (
-                      <svg
-                        className={`w-4 h-4 transition-transform ${!isOpen && "lg:hidden"} ${
-                          expandedMenu === item.id ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    )}
                   </button>
-
-                  {/* Submenu Items */}
-                  {item.submenu && expandedMenu === item.id && (
-                    <div
-                      className={`mt-1 ml-2 pl-8 space-y-1 ${!isOpen && "lg:hidden"}`}
-                    >
-                      {item.submenu.map((subItem) => (
-                        <button
-                          key={subItem.id}
-                          onClick={() => {
-                            onItemSelect(subItem.id);
-                            if (subItem.path) {
-                              router.push(subItem.path);
-                            }
-                          }}
-                          className={`
-                            w-full text-left px-3 py-2 rounded-lg text-sm
-                            transition-colors duration-200
-                            ${
-                              selectedItem === subItem.id
-                                ? "bg-blue-100 text-blue-600 font-medium"
-                                : "text-gray-600 hover:bg-gray-100"
-                            }
-                          `}
-                        >
-                          {subItem.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

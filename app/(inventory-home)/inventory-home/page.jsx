@@ -23,9 +23,26 @@ const InventoryHome = () => {
     todaySales: 0,
     monthlyRevenue: 0,
   });
-
   const [products, setProducts] = useState(null);
-  console.log(products);
+  const [categories, setCategories] = useState(null);
+  console.log(categories);
+
+  useEffect(() => {
+    const tryFetchingCategories = async() => {
+        const res = await axiosInstance.get("/product-categories")
+        if(res.data.success) {
+            setCategories(res.data.data)
+        }
+    }
+    tryFetchingCategories();
+  }, [])
+
+  const stockCount =
+  products?.filter(p => p.quantity > 0 && p.quantity <= 10).length || 0;
+
+  const zeroStock = products?.filter(p => p.quantity === 0).length || 0;
+
+
   useEffect(() => {
     const tryFetchingProducts = async () => {
       const res = await axiosInstance.get("/products");
@@ -112,6 +129,8 @@ const InventoryHome = () => {
     },
   ]);
 
+  
+
   const homeItems = [
     {
       id: 1,
@@ -129,16 +148,16 @@ const InventoryHome = () => {
       icon: <FiGrid className="text-2xl" />,
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-500",
-      value: "24",
+      value: `${categories?.length}`,
     },
     {
       id: 3,
       label: "Low Stock Items",
-      path: "/low-stock-items",
+      path: "/inventory-home/low-stock-items",
       icon: <FiAlertTriangle className="text-2xl" />,
       color: "from-yellow-500 to-yellow-600",
       bgColor: "bg-yellow-500",
-      value: "18",
+      value: stockCount,
     },
     {
       id: 4,
@@ -147,7 +166,7 @@ const InventoryHome = () => {
       icon: <FiXCircle className="text-2xl" />,
       color: "from-red-500 to-red-600",
       bgColor: "bg-red-500",
-      value: "7",
+      value: zeroStock,
     },
     {
       id: 5,
@@ -156,7 +175,7 @@ const InventoryHome = () => {
       icon: <FiDollarSign className="text-2xl" />,
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-500",
-      value: "$124,580",
+      value: `$ ${totalStockValue}`,
     },
     {
       id: 6,
