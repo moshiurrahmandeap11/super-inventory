@@ -2,11 +2,11 @@ import axios from "axios";
 
 // Axios base instance
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api", // backend URL
+  baseURL: "https://server-inventory-hrle.onrender.com/api", // backend URL
   withCredentials: false, 
 });
 
-export const baseImageURL = "http://localhost:5000";
+export const baseImageURL = "https://server-inventory-hrle.onrender.com";
 
 
 
