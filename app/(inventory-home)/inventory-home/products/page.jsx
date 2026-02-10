@@ -6,16 +6,13 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
 import {
-  FiAlertTriangle,
-  FiDollarSign,
   FiEdit2,
   FiEye,
   FiPackage,
   FiPlus,
   FiRefreshCw,
   FiSearch,
-  FiTrash2,
-  FiXCircle,
+  FiTrash2
 } from "react-icons/fi";
 import Lottie from "react-lottie";
 import Swal from "sweetalert2";
@@ -31,12 +28,7 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [filterStock, setFilterStock] = useState("all");
   const [categories, setCategories] = useState([]);
-  const [suppliers, setSuppliers] = useState([]);
-  console.log("suppliers", suppliers);
-
-  
 
   // Lottie options
   const successOptions = {
@@ -61,20 +53,7 @@ const Products = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-    fetchSuppliers();
   }, []);
-
-  const fetchSuppliers = async () => {
-  try {
-    const res = await axiosInstance.get("/suppliers");
-    if (res.data.success) {
-      setSuppliers(res.data.data || []);
-    }
-  } catch (error) {
-    console.error("Error fetching suppliers:", error);
-    toast.error("Failed to load suppliers");
-  }
-};
 
   const fetchProducts = async () => {
     try {
@@ -110,8 +89,7 @@ const Products = () => {
         const searchLower = searchTerm.toLowerCase();
         return (
           product.name?.toLowerCase().includes(searchLower) ||
-          product.category?.toLowerCase().includes(searchLower) ||
-          product.supplier?.toLowerCase().includes(searchLower)
+          product.category?.toLowerCase().includes(searchLower)
         );
       }
       return true;
@@ -123,13 +101,6 @@ const Products = () => {
       }
       return true;
     })
-    .filter((product) => {
-      // Stock filter
-      if (filterStock === "low") return product.quantity <= 10;
-      if (filterStock === "out") return product.quantity === 0;
-      if (filterStock === "in") return product.quantity > 10;
-      return true;
-    })
     .sort((a, b) => {
       // Sort by name
       if (sortOrder === "asc") {
@@ -139,260 +110,63 @@ const Products = () => {
       }
     });
 
-  // Calculate total cost
-  const calculateTotalCost = (costPrice, quantity) => {
-    const cost = parseFloat(costPrice) || 0;
-    const qty = parseFloat(quantity) || 0;
-    return (cost * qty).toFixed(3); // 3 decimal places
-  };
-
-  // Format number with commas and up to 3 decimal places
-  const formatNumber = (num) => {
-    if (!num && num !== 0) return "0";
-    const number = parseFloat(num);
-    return number.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 3,
-    });
-  };
-
-  const totalStockValue =
-    products?.reduce(
-      (sum, product) => sum + product.costPrice * product.quantity,
-      0,
-    ) || 0;
-
-  // Format currency with up to 3 decimal places
-  const formatCurrency = (num) => {
-    if (!num && num !== 0) return "$0.000";
-    return `$${parseFloat(num).toFixed(3)}`;
-  };
-
-  // Handle decimal input with up to 3 digits
-  const handleDecimalInput = (input, maxDecimals = 3) => {
-    let value = input.value;
-    if (value && !value.endsWith('.') && value.includes('.')) {
-      const decimalParts = value.split('.');
-      if (decimalParts[1].length > maxDecimals) {
-        input.value = decimalParts[0] + '.' + decimalParts[1].substring(0, maxDecimals);
-      }
-    }
-  };
-
   // Handle Add Product
   const handleAddProduct = () => {
     Swal.fire({
       title: "Add New Product",
       html: `
-                <div class="space-y-4" id="add-product-form">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
-                            <input type="text" id="swal-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Enter product name" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category*</label>
-                            <select id="swal-category" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                required>
-                                <option value="">Select Category</option>
-                                ${categories
-                                  .map(
-                                    (cat) => `
-                                    <option value="${cat.name}">
-                                        ${cat.name}
-                                    </option>
-                                `,
-                                  )
-                                  .join("")}
-                            </select>
-                        </div>
-                    </div>
+        <div class="space-y-4" id="add-product-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
+              <input type="text" id="swal-name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Enter product name" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Category*</label>
+              <select id="swal-category" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                required>
+                <option value="">Select Category</option>
+                ${categories
+                  .map(
+                    (cat) => `
+                    <option value="${cat.name}">
+                      ${cat.name}
+                    </option>
+                  `
+                  )
+                  .join("")}
+              </select>
+            </div>
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)*</label>
-                            <input type="number" id="swal-price" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   placeholder="0.000" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimal(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 3 decimal places (e.g., 19.999, 45.555)</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price ($)*</label>
-                            <input type="number" id="swal-costPrice" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   placeholder="0.000" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimal(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 3 decimal places (e.g., 15.755, 30.255)</p>
-                        </div>
-                    </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+            <input type="file" id="swal-image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div>
-    <label class="block text-sm font-medium text-gray-700 mb-1">Quantity*</label>
-    <input type="number" id="swal-quantity" 
-           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-           placeholder="0" 
-           min="0" 
-           step="0.001"
-           oninput="formatDecimal(this, 3)"
-           required>
-    <p class="text-xs text-gray-500 mt-1">Enter quantity (supports decimal values like 2.543, 0.789)</p>
-  </div>
-  <div>
-    <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
-    <select id="swal-supplier" 
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            required>
-      <option value="">Select Supplier</option>
-      ${suppliers
-        .map(
-          (supplier) => `
-          <option value="${supplier.name}">
-            ${supplier.name} - ${supplier.phone}
-          </option>
-        `
-        )
-        .join("")}
-    </select>
-  </div>
-</div>
-
-                    <!-- Total Cost Calculation -->
-                    <div id="total-cost-section" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-blue-800">Total Inventory Cost:</p>
-                                <p class="text-xs text-blue-600">Cost Price × Quantity</p>
-                            </div>
-                            <div>
-                                <p id="total-cost-display" class="text-xl font-bold text-blue-900">$0.000</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-                        <input type="file" id="swal-image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <div id="swal-description-editor" class="min-h-[200px]"></div>
-                    </div>
-                </div>
-            `,
-      width: "800px",
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="swal-description" class="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Enter product description..."></textarea>
+          </div>
+        </div>
+      `,
+      width: "600px",
       showCancelButton: true,
       confirmButtonText: "Add Product",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#10B981",
       cancelButtonColor: "#6B7280",
       showLoaderOnConfirm: true,
-      didOpen: () => {
-        // Format decimal helper function with customizable decimal places
-        window.formatDecimal = function (input, maxDecimals = 3) {
-          // Allow decimal input with up to maxDecimals decimal places
-          let value = input.value;
-          if (value && !value.endsWith(".") && value.includes(".")) {
-            const decimalParts = value.split(".");
-            if (decimalParts[1].length > maxDecimals) {
-              input.value =
-                decimalParts[0] + "." + decimalParts[1].substring(0, maxDecimals);
-            }
-          }
-        };
-
-        // Initialize RichTextEditor
-        const editorContainer = document.getElementById(
-          "swal-description-editor",
-        );
-        if (editorContainer) {
-          // Create a container for React component
-          editorContainer.innerHTML = '<div id="richtext-editor"></div>';
-
-          setTimeout(() => {
-            const textarea = document.createElement("textarea");
-            textarea.id = "description-textarea";
-            textarea.className =
-              "w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
-            textarea.placeholder = "Enter product description...";
-            editorContainer
-              .querySelector("#richtext-editor")
-              .appendChild(textarea);
-
-            textarea.addEventListener("input", (e) => {
-              window.currentDescription = e.target.value;
-            });
-          }, 100);
-        }
-
-        // Add event listeners for total cost calculation
-        const costPriceInput = document.getElementById("swal-costPrice");
-        const quantityInput = document.getElementById("swal-quantity");
-        const totalCostDisplay = document.getElementById("total-cost-display");
-
-        const updateTotalCost = () => {
-          const cost = costPriceInput.value || 0;
-          const qty = quantityInput.value || 0;
-          const total = calculateTotalCost(cost, qty);
-          totalCostDisplay.textContent = `$${total}`;
-        };
-
-        costPriceInput.addEventListener("input", updateTotalCost);
-        quantityInput.addEventListener("input", updateTotalCost);
-      },
       preConfirm: async () => {
         const name = document.getElementById("swal-name").value;
         const category = document.getElementById("swal-category").value;
-        const price = document.getElementById("swal-price").value;
-        const costPrice = document.getElementById("swal-costPrice").value;
-        const quantity = document.getElementById("swal-quantity").value;
-        const supplier = document.getElementById("swal-supplier").value;
         const imageFile = document.getElementById("swal-image").files[0];
-        const description = window.currentDescription || "";
+        const description = document.getElementById("swal-description").value;
 
         // Validation
-        if (
-          !name ||
-          !category ||
-          !price ||
-          !costPrice ||
-          !quantity ||
-          !supplier
-        ) {
+        if (!name || !category) {
           Swal.showValidationMessage("Please fill all required fields");
-          return false;
-        }
-
-        // Check if cost price is less than price
-        if (parseFloat(costPrice) > parseFloat(price)) {
-          Swal.showValidationMessage(
-            "Cost price cannot be higher than selling price",
-          );
-          return false;
-        }
-
-        // Check if values are valid numbers
-        if (isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-          Swal.showValidationMessage("Please enter a valid price");
-          return false;
-        }
-
-        if (isNaN(parseFloat(costPrice)) || parseFloat(costPrice) < 0) {
-          Swal.showValidationMessage("Please enter a valid cost price");
-          return false;
-        }
-
-        if (isNaN(parseFloat(quantity)) || parseFloat(quantity) < 0) {
-          Swal.showValidationMessage("Please enter a valid quantity");
           return false;
         }
 
@@ -400,11 +174,7 @@ const Products = () => {
           const formData = new FormData();
           formData.append("name", name);
           formData.append("category", category);
-          formData.append("price", parseFloat(price).toFixed(3)); // 3 decimal places
-          formData.append("costPrice", parseFloat(costPrice).toFixed(3)); // 3 decimal places
-          formData.append("quantity", parseFloat(quantity));
-          formData.append("supplier", supplier);
-          formData.append("description", description);
+          formData.append("description", description || "");
           if (imageFile) {
             formData.append("image", imageFile);
           }
@@ -419,13 +189,13 @@ const Products = () => {
             return true;
           } else {
             Swal.showValidationMessage(
-              response.data.message || "Failed to add product",
+              response.data.message || "Failed to add product"
             );
             return false;
           }
         } catch (error) {
           Swal.showValidationMessage(
-            error.response?.data?.message || "Failed to add product",
+            error.response?.data?.message || "Failed to add product"
           );
           return false;
         }
@@ -436,13 +206,13 @@ const Products = () => {
         Swal.fire({
           title: "Success!",
           html: `
-                        <div class="text-center">
-                            <div class="mb-4">
-                                <Lottie options={successOptions} height={100} width={100} />
-                            </div>
-                            <p class="text-lg font-semibold text-gray-900">Product added successfully!</p>
-                        </div>
-                    `,
+            <div class="text-center">
+              <div class="mb-4">
+                <Lottie options={successOptions} height={100} width={100} />
+              </div>
+              <p class="text-lg font-semibold text-gray-900">Product added successfully!</p>
+            </div>
+          `,
           icon: "success",
           showConfirmButton: false,
           timer: 2000,
@@ -459,233 +229,73 @@ const Products = () => {
     Swal.fire({
       title: "Edit Product",
       html: `
-                <div class="space-y-4" id="edit-product-form">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
-                            <input type="text" id="swal-edit-name" value="${product.name || ""}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category*</label>
-                            <select id="swal-edit-category" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                required>
-                                <option value="">Select Category</option>
-                                ${categories
-                                  .map(
-                                    (cat) => `
-                                    <option value="${cat.name}" ${product.category === cat.name ? "selected" : ""}>
-                                        ${cat.name}
-                                    </option>
-                                `,
-                                  )
-                                  .join("")}
-                            </select>
-                        </div>
-                    </div>
+        <div class="space-y-4" id="edit-product-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
+              <input type="text" id="swal-edit-name" value="${product.name || ""}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Category*</label>
+              <select id="swal-edit-category" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                required>
+                <option value="">Select Category</option>
+                ${categories
+                  .map(
+                    (cat) => `
+                    <option value="${cat.name}" ${product.category === cat.name ? "selected" : ""}>
+                      ${cat.name}
+                    </option>
+                  `
+                  )
+                  .join("")}
+              </select>
+            </div>
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Price ($)*</label>
-                            <input type="number" id="swal-edit-price" 
-                                   value="${product.price || 0}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimalEdit(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter price with up to 3 decimal places</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price ($)*</label>
-                            <input type="number" id="swal-edit-costPrice" 
-                                   value="${product.costPrice || 0}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimalEdit(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter cost price with up to 3 decimal places</p>
-                        </div>
-                    </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Current Image</label>
+            ${
+              product.image
+                ? `
+              <div class="flex items-center space-x-4">
+                <img src="${`${baseImageURL}${product.image}`}" alt="${product.name}" class="w-20 h-20 object-cover rounded-lg">
+                <span class="text-sm text-gray-500">Current product image</span>
+              </div>
+            `
+                : '<p class="text-sm text-gray-500">No image uploaded</p>'
+            }
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantity*</label>
-                            <input type="number" id="swal-edit-quantity" 
-                                   value="${product.quantity || 0}" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" 
-                                   min="0" 
-                                   step="0.001"
-                                   oninput="formatDecimalEdit(this, 3)"
-                                   required>
-                            <p class="text-xs text-gray-500 mt-1">Enter quantity (supports 3 decimal places)</p>
-                        </div>
-<div>
-  <label class="block text-sm font-medium text-gray-700 mb-1">Supplier*</label>
-  <select id="swal-edit-supplier" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          required>
-    <option value="">Select Supplier</option>
-    ${suppliers
-      .map(
-        (supplier) => `
-        <option value="${supplier.name}" ${product.supplier === supplier.name ? "selected" : ""}>
-          ${supplier.name} - ${supplier.phone}
-        </option>
-      `
-      )
-      .join("")}
-  </select>
-</div>
-                    </div>
-
-                    <!-- Total Cost Calculation -->
-                    <div id="edit-total-cost-section" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-blue-800">Total Inventory Cost:</p>
-                                <p class="text-xs text-blue-600">Cost Price × Quantity</p>
-                            </div>
-                            <div>
-                                <p id="edit-total-cost-display" class="text-xl font-bold text-blue-900">$${calculateTotalCost(product.costPrice, product.quantity)}</p>
-                            </div>
-                        </div>
-                    </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Update Image</label>
+            <input type="file" id="swal-edit-image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
+          </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Image</label>
-                        ${
-                          product.image
-                            ? `
-                            <div class="flex items-center space-x-4">
-                                <img src="${`${baseImageURL}${product.image}`}" alt="${product.name}" class="w-20 h-20 object-cover rounded-lg">
-                                <span class="text-sm text-gray-500">Current product image</span>
-                            </div>
-                        `
-                            : '<p class="text-sm text-gray-500">No image uploaded</p>'
-                        }
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Update Image</label>
-                        <input type="file" id="swal-edit-image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <div id="swal-edit-description-editor" class="min-h-[200px]"></div>
-                    </div>
-                </div>
-            `,
-      width: "800px",
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="swal-edit-description" class="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Enter product description...">${product.description || ""}</textarea>
+          </div>
+        </div>
+      `,
+      width: "600px",
       showCancelButton: true,
       confirmButtonText: "Update Product",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#3B82F6",
       cancelButtonColor: "#6B7280",
       showLoaderOnConfirm: true,
-      didOpen: () => {
-        // Format decimal helper function for edit
-        window.formatDecimalEdit = function (input, maxDecimals = 3) {
-          // Allow decimal input with up to maxDecimals decimal places
-          let value = input.value;
-          if (value && !value.endsWith(".") && value.includes(".")) {
-            const decimalParts = value.split(".");
-            if (decimalParts[1].length > maxDecimals) {
-              input.value =
-                decimalParts[0] + "." + decimalParts[1].substring(0, maxDecimals);
-            }
-          }
-        };
-
-        // Initialize RichTextEditor for edit
-        const editorContainer = document.getElementById(
-          "swal-edit-description-editor",
-        );
-        if (editorContainer) {
-          editorContainer.innerHTML = '<div id="edit-richtext-editor"></div>';
-
-          setTimeout(() => {
-            const textarea = document.createElement("textarea");
-            textarea.id = "edit-description-textarea";
-            textarea.className =
-              "w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
-            textarea.placeholder = "Enter product description...";
-            textarea.value = product.description || "";
-            editorContainer
-              .querySelector("#edit-richtext-editor")
-              .appendChild(textarea);
-
-            textarea.addEventListener("input", (e) => {
-              window.currentEditDescription = e.target.value;
-            });
-          }, 100);
-        }
-
-        // Add event listeners for total cost calculation
-        const costPriceInput = document.getElementById("swal-edit-costPrice");
-        const quantityInput = document.getElementById("swal-edit-quantity");
-        const totalCostDisplay = document.getElementById(
-          "edit-total-cost-display",
-        );
-
-        const updateTotalCost = () => {
-          const cost = costPriceInput.value || 0;
-          const qty = quantityInput.value || 0;
-          const total = calculateTotalCost(cost, qty);
-          totalCostDisplay.textContent = `$${total}`;
-        };
-
-        costPriceInput.addEventListener("input", updateTotalCost);
-        quantityInput.addEventListener("input", updateTotalCost);
-      },
       preConfirm: async () => {
         const name = document.getElementById("swal-edit-name").value;
         const category = document.getElementById("swal-edit-category").value;
-        const price = document.getElementById("swal-edit-price").value;
-        const costPrice = document.getElementById("swal-edit-costPrice").value;
-        const quantity = document.getElementById("swal-edit-quantity").value;
-        const supplier = document.getElementById("swal-edit-supplier").value;
         const imageFile = document.getElementById("swal-edit-image").files[0];
-        const description =
-          window.currentEditDescription || product.description || "";
+        const description = document.getElementById("swal-edit-description").value;
 
         // Validation
-        if (
-          !name ||
-          !category ||
-          !price ||
-          !costPrice ||
-          !quantity ||
-          !supplier
-        ) {
+        if (!name || !category) {
           Swal.showValidationMessage("Please fill all required fields");
-          return false;
-        }
-
-        // Check if cost price is less than price
-        if (parseFloat(costPrice) > parseFloat(price)) {
-          Swal.showValidationMessage(
-            "Cost price cannot be higher than selling price",
-          );
-          return false;
-        }
-
-        // Check if values are valid numbers
-        if (isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-          Swal.showValidationMessage("Please enter a valid price");
-          return false;
-        }
-
-        if (isNaN(parseFloat(costPrice)) || parseFloat(costPrice) < 0) {
-          Swal.showValidationMessage("Please enter a valid cost price");
-          return false;
-        }
-
-        if (isNaN(parseFloat(quantity)) || parseFloat(quantity) < 0) {
-          Swal.showValidationMessage("Please enter a valid quantity");
           return false;
         }
 
@@ -693,11 +303,7 @@ const Products = () => {
           const formData = new FormData();
           formData.append("name", name);
           formData.append("category", category);
-          formData.append("price", parseFloat(price).toFixed(3)); // 3 decimal places
-          formData.append("costPrice", parseFloat(costPrice).toFixed(3)); // 3 decimal places
-          formData.append("quantity", parseFloat(quantity));
-          formData.append("supplier", supplier);
-          formData.append("description", description);
+          formData.append("description", description || "");
           if (imageFile) {
             formData.append("image", imageFile);
           }
@@ -709,20 +315,20 @@ const Products = () => {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
-            },
+            }
           );
 
           if (response.data.success) {
             return true;
           } else {
             Swal.showValidationMessage(
-              response.data.message || "Failed to update product",
+              response.data.message || "Failed to update product"
             );
             return false;
           }
         } catch (error) {
           Swal.showValidationMessage(
-            error.response?.data?.message || "Failed to update product",
+            error.response?.data?.message || "Failed to update product"
           );
           return false;
         }
@@ -733,13 +339,13 @@ const Products = () => {
         Swal.fire({
           title: "Success!",
           html: `
-                        <div class="text-center">
-                            <div class="mb-4">
-                                <Lottie options={successOptions} height={100} width={100} />
-                            </div>
-                            <p class="text-lg font-semibold text-gray-900">Product updated successfully!</p>
-                        </div>
-                    `,
+            <div class="text-center">
+              <div class="mb-4">
+                <Lottie options={successOptions} height={100} width={100} />
+              </div>
+              <p class="text-lg font-semibold text-gray-900">Product updated successfully!</p>
+            </div>
+          `,
           icon: "success",
           showConfirmButton: false,
           timer: 2000,
@@ -767,20 +373,20 @@ const Products = () => {
       if (result.isConfirmed) {
         try {
           const response = await axiosInstance.delete(
-            `/products/${product._id}`,
+            `/products/${product._id}`
           );
 
           if (response.data.success) {
             Swal.fire({
               title: "Deleted!",
               html: `
-                                <div class="text-center">
-                                    <div class="mb-4">
-                                        <Lottie options={successOptions} height={100} width={100} />
-                                    </div>
-                                    <p class="text-lg font-semibold text-gray-900">Product deleted successfully!</p>
-                                </div>
-                            `,
+                <div class="text-center">
+                  <div class="mb-4">
+                    <Lottie options={successOptions} height={100} width={100} />
+                  </div>
+                  <p class="text-lg font-semibold text-gray-900">Product deleted successfully!</p>
+                </div>
+              `,
               showConfirmButton: false,
               timer: 2000,
             }).then(() => {
@@ -792,7 +398,7 @@ const Products = () => {
           }
         } catch (error) {
           toast.error(
-            error.response?.data?.message || "Failed to delete product",
+            error.response?.data?.message || "Failed to delete product"
           );
         }
       }
@@ -801,129 +407,53 @@ const Products = () => {
 
   // Handle View Product Details
   const handleViewProduct = (product) => {
-    const totalCost = calculateTotalCost(product.costPrice, product.quantity);
-    const totalValue = (
-      Number(product.price) * Number(product.quantity)
-    ).toFixed(3);
-
     Swal.fire({
       title: product.name,
       html: `
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <p class="text-lg font-semibold text-gray-900">${product.category || "N/A"}</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
-                            <p class="text-lg font-semibold text-gray-900">${product.supplier || "N/A"}</p>
-                        </div>
-                    </div>
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <p class="text-lg font-semibold text-gray-900">${product.category || "N/A"}</p>
+            </div>
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-blue-50 p-3 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                            <p class="text-xl font-bold text-blue-900">${formatCurrency(product.price)}</p>
-                        </div>
-                        <div class="bg-green-50 p-3 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Cost Price</label>
-                            <p class="text-xl font-bold text-green-900">${formatCurrency(product.costPrice)}</p>
-                        </div>
-                        <div class="bg-purple-50 p-3 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Profit</label>
-                            <p class="text-xl font-bold text-purple-900">${formatCurrency(product.profit)}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-yellow-800">Total Inventory Value:</p>
-                                <p class="text-xs text-yellow-600">Price × Quantity</p>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-yellow-900">${formatCurrency(totalValue)}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-sm font-medium text-red-800">Total Inventory Cost:</p>
-                                <p class="text-xs text-red-600">Cost Price × Quantity</p>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-red-900">${formatCurrency(totalCost)}</p>
-                            </div>
-                        </div>
-                    </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Created Date</label>
+              <p class="text-lg font-semibold text-gray-900">${new Date(product.createdAt).toLocaleDateString()}</p>
+              <p class="text-sm text-gray-500">Last updated: ${new Date(product.updatedAt).toLocaleDateString()}</p>
+            </div>
+          </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
-                            <div class="flex items-center">
-                                <p class="text-2xl font-bold ${product.quantity <= 10 ? "text-red-600" : "text-gray-900"}">${formatNumber(product.quantity)}</p>
-                                ${
-                                  product.quantity === 0
-                                    ? '<span class="ml-2 px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Out of Stock</span>'
-                                    : product.quantity <= 10
-                                      ? '<span class="ml-2 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Low Stock</span>'
-                                      : '<span class="ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">In Stock</span>'
-                                }
-                            </div>
-                            <div class="mt-2">
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Stock Level</span>
-                                    <span>${formatNumber(product.quantity)} units</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="h-2 rounded-full ${
-                                      product.quantity === 0
-                                        ? "bg-red-500"
-                                        : product.quantity <= 10
-                                          ? "bg-yellow-500"
-                                          : "bg-green-500"
-                                    }" style="width: ${Math.min(100, product.quantity)}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Created Date</label>
-                            <p class="text-lg font-semibold text-gray-900">${new Date(product.createdAt).toLocaleDateString()}</p>
-                            <p class="text-sm text-gray-500">Last updated: ${new Date(product.updatedAt).toLocaleDateString()}</p>
-                        </div>
-                    </div>
+          ${
+            product.image
+              ? `
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+              <div class="flex justify-center">
+                <img src="${`${baseImageURL}${product.image}`}" alt="${product.name}" class="max-w-full h-64 object-contain rounded-lg">
+              </div>
+            </div>
+          `
+              : ""
+          }
                     
-                    ${
-                      product.image
-                        ? `
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-                            <div class="flex justify-center">
-                                <img src="${`${baseImageURL}${product.image}`}" alt="${product.name}" class="max-w-full h-64 object-contain rounded-lg">
-                            </div>
-                        </div>
-                    `
-                        : ""
-                    }
-                    
-                    ${
-                      product.description
-                        ? `
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <div class="p-3 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
-                                ${product.description}
-                            </div>
-                        </div>
-                    `
-                        : ""
-                    }
-                </div>
-            `,
-      width: "800px",
+          ${
+            product.description
+              ? `
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <div class="p-3 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
+                ${product.description}
+              </div>
+            </div>
+          `
+              : ""
+          }
+        </div>
+      `,
+      width: "600px",
       showConfirmButton: false,
       showCloseButton: true,
     });
@@ -933,7 +463,6 @@ const Products = () => {
   const resetFilters = () => {
     setSearchTerm("");
     setFilterCategory("all");
-    setFilterStock("all");
     setSortOrder("asc");
   };
 
@@ -962,7 +491,7 @@ const Products = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               Products
             </h1>
-            <p className="text-gray-600 mt-2">Manage your inventory products</p>
+            <p className="text-gray-600 mt-2">Manage your products</p>
           </div>
           <button
             onClick={handleAddProduct}
@@ -982,28 +511,14 @@ const Products = () => {
             <p className="text-lg font-bold text-gray-900">{products.length}</p>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-            <p className="text-xs text-gray-500">Low Stock</p>
-            <p className="text-lg font-bold text-red-600">
-              {products.filter((p) => p.quantity <= 10).length}
-            </p>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-            <p className="text-xs text-gray-500">Out of Stock</p>
-            <p className="text-lg font-bold text-yellow-600">
-              {products.filter((p) => p.quantity === 0).length}
-            </p>
-          </div>
-          <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-xs text-gray-500">Total Stock Value</p>
-            <p className="text-lg font-semibold text-green-600">
-              BDT {formatNumber(totalStockValue)}
-            </p>
+            <p className="text-xs text-gray-500">Categories</p>
+            <p className="text-lg font-bold text-blue-600">{uniqueCategories.length}</p>
           </div>
         </div>
       </div>
 
       {/* Desktop View Stats */}
-      <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -1020,39 +535,26 @@ const Products = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Low Stock</p>
-              <p className="text-2xl font-bold text-red-600">
-                {products.filter((p) => p.quantity <= 10).length}
+              <p className="text-sm text-gray-500">Categories</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {uniqueCategories.length}
               </p>
             </div>
-            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <FiAlertTriangle className="text-red-600" size={24} />
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <FiPackage className="text-blue-600" size={24} />
             </div>
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Out of Stock</p>
-              <p className="text-2xl font-bold text-yellow-600">
-                {products.filter((p) => p.quantity === 0).length}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiXCircle className="text-yellow-600" size={24} />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Total Stock Value</p>
+              <p className="text-sm text-gray-500">With Images</p>
               <p className="text-2xl font-bold text-green-600">
-                BDT {formatNumber(totalStockValue)}
+                {products.filter(p => p.image).length}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiDollarSign className="text-green-600" size={24} />
+              <FiPackage className="text-green-600" size={24} />
             </div>
           </div>
         </div>
@@ -1067,7 +569,7 @@ const Products = () => {
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search products by name, category, or supplier..."
+                placeholder="Search products by name or category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
@@ -1088,20 +590,6 @@ const Products = () => {
                   {cat.name}
                 </option>
               ))}
-            </select>
-          </div>
-
-          {/* Stock Filter */}
-          <div>
-            <select
-              value={filterStock}
-              onChange={(e) => setFilterStock(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            >
-              <option value="all">All Stock</option>
-              <option value="in">In Stock (10+)</option>
-              <option value="low">Low Stock (≤10)</option>
-              <option value="out">Out of Stock</option>
             </select>
           </div>
 
@@ -1157,89 +645,70 @@ const Products = () => {
               </button>
             </div>
           ) : (
-            filteredProducts.map((product) => {
-              const totalValue = (
-                Number(product.price) * Number(product.quantity)
-              ).toFixed(3);
-              return (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start">
-                      {product.image ? (
-                        <img
-                          src={`${baseImageURL}${product.image}`}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-lg object-cover mr-3"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
-                          <FiPackage className="text-gray-400" />
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {product.name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          BDT{formatNumber(product.price)}
-                        </p>
-                        <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mt-1 inline-block">
-                          {product.category}
-                        </span>
+            filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start">
+                    {product.image ? (
+                      <img
+                        src={`${baseImageURL}${product.image}`}
+                        alt={product.name}
+                        className="w-12 h-12 rounded-lg object-cover mr-3"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
+                        <FiPackage className="text-gray-400" />
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={`text-sm font-medium ${
-                          product.quantity === 0
-                            ? "text-red-600"
-                            : product.quantity <= 10
-                              ? "text-yellow-600"
-                              : "text-green-600"
-                        }`}
-                      >
-                        {formatNumber(product.quantity)} in stock
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        ${formatNumber(totalValue)} value
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="text-sm text-gray-500">
-                      <p>{product.supplier}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleViewProduct(product)}
-                        className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors"
-                        title="View Details"
-                      >
-                        <FiEye size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleEditProduct(product)}
-                        className="text-yellow-600 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 p-2 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <FiEdit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(product)}
-                        className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors"
-                        title="Delete"
-                      >
-                        <FiTrash2 size={16} />
-                      </button>
+                    )}
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {product.name}
+                      </h3>
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mt-1 inline-block">
+                        {product.category}
+                      </span>
+                      {product.description && (
+                        <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                          {product.description}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
-              );
-            })
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <div className="text-sm text-gray-500">
+                    <p>Added: {new Date(product.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleViewProduct(product)}
+                      className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors"
+                      title="View Details"
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleEditProduct(product)}
+                      className="text-yellow-600 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 p-2 rounded-lg transition-colors"
+                      title="Edit"
+                    >
+                      <FiEdit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduct(product)}
+                      className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
@@ -1257,16 +726,10 @@ const Products = () => {
                   Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
+                  Description
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Value
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Supplier
+                  Created Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -1276,7 +739,7 @@ const Products = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center">
+                  <td colSpan="5" className="px-6 py-8 text-center">
                     <div className="text-gray-500">
                       <FiPackage className="mx-auto h-12 w-12 text-gray-400" />
                       <p className="mt-2 text-lg font-medium">
@@ -1296,124 +759,71 @@ const Products = () => {
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
-                  const totalValue = (
-                    Number(product.price) * Number(product.quantity)
-                  ).toFixed(3);
-                  const totalCost = calculateTotalCost(
-                    product.costPrice,
-                    product.quantity,
-                  );
-                  return (
-                    <tr key={product._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {product.image ? (
-                            <img
-                              src={`${baseImageURL}${product.image}`}
-                              alt={product.name}
-                              className="w-10 h-10 rounded-lg object-cover mr-3"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
-                              <FiPackage className="text-gray-400" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {product.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              ID: {product._id?.slice(-6)}
-                            </div>
+                filteredProducts.map((product) => (
+                  <tr key={product._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {product.image ? (
+                          <img
+                            src={`${baseImageURL}${product.image}`}
+                            alt={product.name}
+                            className="w-10 h-10 rounded-lg object-cover mr-3"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
+                            <FiPackage className="text-gray-400" />
+                          </div>
+                        )}
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {product.name}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ID: {product._id?.slice(-6)}
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {product.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          BDT {formatNumber(product.price)}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Cost: BDT {formatNumber(product.costPrice)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="mr-2">
-                            <span
-                              className={`text-sm font-medium ${
-                                product.quantity === 0
-                                  ? "text-red-600"
-                                  : product.quantity <= 10
-                                    ? "text-yellow-600"
-                                    : "text-green-600"
-                              }`}
-                            >
-                              {formatNumber(product.quantity)}
-                            </span>
-                          </div>
-                          <div className="w-20">
-                            <div className="bg-gray-200 rounded-full h-2">
-                              <div
-                                className={`h-2 rounded-full ${
-                                  product.quantity === 0
-                                    ? "bg-red-500"
-                                    : product.quantity <= 10
-                                      ? "bg-yellow-500"
-                                      : "bg-green-500"
-                                }`}
-                                style={{
-                                  width: `${Math.min(100, product.quantity)}%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          BDT {formatNumber(totalValue)}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Cost: BDT{formatNumber(totalCost)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {product.supplier}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleViewProduct(product)}
-                            className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-md transition-colors"
-                            title="View Details"
-                          >
-                            <FiEye size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleEditProduct(product)}
-                            className="text-yellow-600 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 p-2 rounded-md transition-colors"
-                            title="Edit"
-                          >
-                            <FiEdit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(product)}
-                            className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-md transition-colors"
-                            title="Delete"
-                          >
-                            <FiTrash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                        {product.description || "No description"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(product.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleViewProduct(product)}
+                          className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 p-2 rounded-md transition-colors"
+                          title="View Details"
+                        >
+                          <FiEye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="text-yellow-600 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 p-2 rounded-md transition-colors"
+                          title="Edit"
+                        >
+                          <FiEdit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product)}
+                          className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 p-2 rounded-md transition-colors"
+                          title="Delete"
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -1425,15 +835,6 @@ const Products = () => {
         <div>
           Showing <span className="font-medium">{filteredProducts.length}</span>{" "}
           of <span className="font-medium">{products.length}</span> products
-        </div>
-        <div className="text-xs text-gray-400">
-          Total Inventory Value: $
-          {formatNumber(
-            filteredProducts.reduce(
-              (sum, p) => sum + (p.price || 0) * (p.quantity || 0),
-              0,
-            ),
-          )}
         </div>
       </div>
     </div>

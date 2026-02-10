@@ -358,6 +358,7 @@ const SalesItems = () => {
                         productName: product.name,
                         productPrice: product.price,
                         productQty: quantity,
+                        productCategory: product.category,
                         discount: parseFloat(discount) || 0,
                         vat: parseFloat(vat) || 0,
                         paidAmount: parseFloat(paidAmount) || 0,
@@ -1036,7 +1037,7 @@ const generateInvoice = useCallback(async (invoiceId) => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen text-black bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6 lg:p-8">
             <div className="max-w-8xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">

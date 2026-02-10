@@ -60,7 +60,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
       submenu: [
         { label: "Products", path: "/inventory-home/products" },
         { label: "Product Categories", path: "/inventory-home/categories" },
+        { label: "Add Stock", path: "/inventory-home/add-stock"}, 
         { label: "Low Stock Items", path: "/inventory-home/low-stock-items" },
+        { label: "Purchases Invoices", path: "/inventory-home/purchases-invoices"},
       ],
     },
     {
@@ -69,7 +71,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       submenu: [
         { label: "Sales Items", path: "/inventory-home/sales-items" },
         { label: "Orders", path: "/inventory-home/orders" },
-        { label: "Invoices", path: "/inventory-home/invoices" },
+        { label: "Sales Invoices", path: "/inventory-home/sales-invoices" },
       ],
     },
     {
@@ -84,7 +86,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
       label: "Reports",
       icon: <FiFileText className="text-lg" />,
       submenu: [
-        { label: "Sales Report", path: "/inventory-home/reports/sales" },
+        { label: "Sales Report", path: "/inventory-home/sales-report" },
         { label: "Inventory Report", path: "/inventory-home/reports/inventory" },
         { label: "Profit & Loss", path: "/inventory-home/reports/profit-loss" },
       ],
