@@ -996,7 +996,7 @@ const Products = () => {
           <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
             <p className="text-xs text-gray-500">Total Stock Value</p>
             <p className="text-lg font-semibold text-green-600">
-              ৳ {formatNumber(totalStockValue)}
+              BDT {formatNumber(totalStockValue)}
             </p>
           </div>
         </div>
@@ -1048,7 +1048,7 @@ const Products = () => {
             <div>
               <p className="text-sm text-gray-500">Total Stock Value</p>
               <p className="text-2xl font-bold text-green-600">
-                ৳ {formatNumber(totalStockValue)}
+                BDT {formatNumber(totalStockValue)}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -1184,7 +1184,7 @@ const Products = () => {
                           {product.name}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          ${formatNumber(product.price)}
+                          BDT{formatNumber(product.price)}
                         </p>
                         <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mt-1 inline-block">
                           {product.category}
@@ -1336,10 +1336,10 @@ const Products = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          ${formatNumber(product.price)}
+                          BDT {formatNumber(product.price)}
                         </div>
                         <div className="text-xs text-gray-500">
-                          Cost: ${formatNumber(product.costPrice)}
+                          Cost: BDT {formatNumber(product.costPrice)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -1377,10 +1377,10 @@ const Products = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${formatNumber(totalValue)}
+                          BDT {formatNumber(totalValue)}
                         </div>
                         <div className="text-xs text-gray-500">
-                          Cost: ${formatNumber(totalCost)}
+                          Cost: BDT{formatNumber(totalCost)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

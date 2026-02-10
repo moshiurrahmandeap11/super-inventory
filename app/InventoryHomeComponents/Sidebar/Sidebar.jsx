@@ -55,27 +55,30 @@ const Sidebar = ({ isOpen, onToggle }) => {
       exact: true,
     },
     {
-      label: "Products",
+      label: "Products Manager",
       icon: <FiPackage className="text-lg" />,
       submenu: [
-        { label: "All Products", path: "/inventory-home/products" },
-        { label: "Categories", path: "/inventory-home/categories" },
-        { label: "Low Stock", path: "/inventory-home/low-stock" },
+        { label: "Products", path: "/inventory-home/products" },
+        { label: "Product Categories", path: "/inventory-home/categories" },
+        { label: "Low Stock Items", path: "/inventory-home/low-stock-items" },
       ],
     },
     {
       label: "Sales",
       icon: <FiShoppingCart className="text-lg" />,
       submenu: [
-        { label: "Sales Items", path: "/inventory-home/sales" },
+        { label: "Sales Items", path: "/inventory-home/sales-items" },
         { label: "Orders", path: "/inventory-home/orders" },
         { label: "Invoices", path: "/inventory-home/invoices" },
       ],
     },
     {
-      label: "Customers",
+      label: "Parties",
       icon: <FiUsers className="text-lg" />,
-      path: "/inventory-home/customers",
+      submenu: [
+        {label: "Customers", path: "/inventory-home/customers"},
+        {label: "Suppliers", path: "/inventory-home/supplier"}
+      ]
     },
     {
       label: "Reports",

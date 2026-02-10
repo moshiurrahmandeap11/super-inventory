@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaArrowRight, FaRegChartBar, FaShoppingCart } from "react-icons/fa";
 import {
-    FiAlertTriangle,
-    FiCalendar,
-    FiDollarSign,
-    FiGrid,
-    FiPackage,
-    FiTrendingUp,
-    FiXCircle,
+  FiAlertTriangle,
+  FiCalendar,
+  FiDollarSign,
+  FiGrid,
+  FiPackage,
+  FiTrendingUp,
+  FiXCircle,
 } from "react-icons/fi";
 
 const InventoryHome = () => {
@@ -175,7 +175,7 @@ const InventoryHome = () => {
       icon: <FiDollarSign className="text-2xl" />,
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-500",
-      value: `$ ${totalStockValue}`,
+      value: `BDT ${totalStockValue}`,
     },
     {
       id: 6,
@@ -184,7 +184,7 @@ const InventoryHome = () => {
       icon: <FaShoppingCart className="text-2xl" />,
       color: "from-indigo-500 to-indigo-600",
       bgColor: "bg-indigo-500",
-      value: "$4,250",
+      value: "BDT 4,250",
     },
     {
       id: 7,
@@ -193,7 +193,7 @@ const InventoryHome = () => {
       icon: <FiTrendingUp className="text-2xl" />,
       color: "from-pink-500 to-pink-600",
       bgColor: "bg-pink-500",
-      value: "$89,450",
+      value: "BDT 89,450",
     },
   ];
 
@@ -269,7 +269,7 @@ const InventoryHome = () => {
           </div>
           <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
             <p className="text-xs text-gray-500">This Month Sales</p>
-            <p className="text-lg font-semibold text-gray-900">$89.4K</p>
+            <p className="text-lg font-semibold text-gray-900">BDT 89.4K</p>
           </div>
           <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
             <p className="text-xs text-gray-500">Low Stock</p>
@@ -281,7 +281,7 @@ const InventoryHome = () => {
           <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
             <p className="text-xs text-gray-500">Total Stock Value</p>
             <p className="text-lg font-semibold text-green-600">
-              ৳ {totalStockValue.toLocaleString()}
+              BDT {totalStockValue.toLocaleString()}
             </p>
           </div>
         </div>
