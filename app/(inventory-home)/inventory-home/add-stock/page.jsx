@@ -133,7 +133,7 @@ const AddStock = () => {
             discount: '0',
             vat: '0',
             paidAmount: '0',
-            purchaseManager: users.find(u => u.role === 'manager')?.fullName || users[0]?.fullName || ''
+            purchaseManager: users.find(u => u.role === 'admin')?.fullName || users[0]?.fullName || ''
         });
         setErrors({});
         setShowModal(true);

@@ -2,14 +2,17 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FaFunnelDollar } from "react-icons/fa";
 import {
   FiChevronDown,
   FiFileText,
   FiHome,
   FiPackage,
+  FiSettings,
   FiShoppingCart,
   FiUsers
 } from "react-icons/fi";
+import { MdMoney } from "react-icons/md";
 
 const Sidebar = ({ isOpen, onToggle }) => {
   const [openSubmenu, setOpenSubmenu] = useState(null);
@@ -70,7 +73,8 @@ const Sidebar = ({ isOpen, onToggle }) => {
       icon: <FiShoppingCart className="text-lg" />,
       submenu: [
         { label: "Sales Items", path: "/inventory-home/sales-items" },
-        { label: "Orders", path: "/inventory-home/orders" },
+        { label: "Pre Orders", path: "/inventory-home/pre-orders"},
+        { label: "Pre Orders Sale", path: "/inventory-home/pre-orders-sale" },
         { label: "Sales Invoices", path: "/inventory-home/sales-invoices" },
       ],
     },
@@ -87,10 +91,37 @@ const Sidebar = ({ isOpen, onToggle }) => {
       icon: <FiFileText className="text-lg" />,
       submenu: [
         { label: "Sales Report", path: "/inventory-home/sales-report" },
-        { label: "Inventory Report", path: "/inventory-home/reports/inventory" },
-        { label: "Profit & Loss", path: "/inventory-home/reports/profit-loss" },
+        { label: "Inventory Report", path: "/inventory-home/inventory-report" },
+        { label: "Profit & Loss", path: "/inventory-home/profit-or-loss" },
       ],
     },
+    {
+      label: "Expenses",
+      icon: <MdMoney className="text-lg" />,
+      submenu: [
+        {label: "All Expenses", path: "/inventory-home/expense/all"},
+        {label: "Expenses Category", path: "/inventory-home/expense/category"},
+        {label: "Pay Expense", path: "/inventory-home/expense/pay"},
+      ]
+    },
+    {
+      label: "Investment",
+      icon: <FaFunnelDollar className="text-lg" />,
+      submenu: [
+        {label: "Investment List", path: "/inventory-home/investment/list"},
+        {label: "Investment Category", path: "/inventory-home/investment/category"},
+        {label: "Add Investment", path: "/inventory-home/investment/add-investment"},
+        {label: "Invests Invoices", path: "/inventory-home/investment/invests-invoices"},
+      ]
+    },
+    {
+      label: "Settings",
+      icon: <FiSettings className="text-lg" />,
+      submenu: [
+        {label: "Basic Settings", path: "/inventory-home/settings/basic"},
+        {label: "Currency Settings", path: "/inventory-home/settings/currency"},
+      ]
+    }
   ];
 
   // Check if item is active

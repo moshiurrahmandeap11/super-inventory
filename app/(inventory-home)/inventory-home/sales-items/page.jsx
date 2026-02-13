@@ -356,6 +356,7 @@ const SalesItems = () => {
                     const response = await axiosInstance.post('/sales-invoices', {
                         productID: product._id,
                         productName: product.name,
+                        productCostPrice: product.costPrice,
                         productPrice: product.price,
                         productQty: quantity,
                         productCategory: product.category,
